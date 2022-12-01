@@ -1,5 +1,5 @@
 
-class Obstacle {
+class Totem {
 
 
   constructor(x, y, wid, h, pic, dif) {
