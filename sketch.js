@@ -23,7 +23,7 @@ let d = 0
 let dAlready = false
 let lastSki = []
 let filterCoolDown = 0
-let hS = localStorage
+let hS
 let playing = false
 
 
@@ -37,6 +37,8 @@ function preload() {
 }
 
 function setup() {
+  textAlign(CENTER)
+  textFont(myFont)
   fS = false
   log = loadImage('assets/new assets/log.png')
   bigRock = loadImage('assets/bRock.png')
@@ -64,10 +66,20 @@ function setup() {
 }
 
 function draw() {
-  //menuScreen()
+  if(localStorage == undefined){
+    localStorage.setItem('Highscore', 0)
+  }
+  hS = localStorage.getItem('Highscore')
+  if(playing == false){
+  menuScreen()
+  } else {
+    playScreen()
+  }
+
 }
 
 function playScreen(){
+  playing = true
   ski1.resize(44, 102)
   skiR.resize(58, 92)
   skiL.resize(58, 92)
@@ -91,34 +103,49 @@ function playScreen(){
 }
 
 function menuScreen() {
+  isFullScreen()
+  resizeCanvas(windowWidth, windowHeight)
   cursor()
   displayHS()
-  let playButton = createButton('Play')
-  playButton.position(100,0)
-  //playButton.mousePressed(playing = true)
+  textSize(100)
+  text("SKI GAME",windowWidth/2, windowHeight / 2 -100)
+  textSize(40)
+  text("Press Return to Play", windowWidth/2, windowHeight / 2 + 50)
+  if(keyPressed("Enter")){
+    playing = true
+  }
 }
 
 function displayHS() {
   textSize(50)
-  text("High Score:" + hS, windowWidth - 100, windowHeight - 100)
+  text("High Score:" + hS, windowWidth/2, windowHeight - 100)
 }
 
 function pauseScreen() {
   textSize(100)
-  text('Game Paused', windowWidth / 2 - 200, windowHeight / 2 - 50)
+  text('Game Paused', windowWidth/2, windowHeight / 2 - 50)
   textSize(50)
-  text('Press Return to Unpause', windowWidth / 2 - 100, windowHeight / 2 + 50)
+  text('Press Return to Unpause', windowWidth/2, windowHeight / 2 + 50)
+  text('Press "M" to Return to Menu', windowWidth/2, windowHeight / 2 + 100)
+  if(keyPressed('m')){
+    playing = false
+  }
   textSize(40)
-  text(score, windowWidth - 150, 50)
+  text(score, windowWidth - 70, 50)
 }
 
 function deathScreen() {
   textSize(150)
   fill('red')
-  text('RIP', windowWidth / 2 - 150, windowHeight / 2 - 50)
+  text('RIP', windowWidth / 2, windowHeight / 2 - 50)
   fill('black')
   textSize(40)
-  text(score, windowWidth - 150, 50)
+  text('Press Return to Restart', windowWidth / 2, windowHeight / 2 + 50)
+  if(keyPressed("Enter")){
+    restartGame()
+  }
+  text(score, windowWidth - 70, 50)
+  displayHS()
 }
 
 function run() {
@@ -126,13 +153,12 @@ function run() {
     restartGame()
     key = 'lmao'
   }
-  else if(keyPressed("ESCAPE")){
+  else if(keyPressed("escape")){
     restartGame()
     playing = false
   }
   else{  
     getHS()
-    incSnowDensity()
     getDif()
     image(bg, 0, getBgY(), windowWidth, windowWidth * 4)
     image(bg, 0, getBgY() + 4 * windowWidth, windowWidth, windowWidth * 4)
@@ -144,9 +170,10 @@ function run() {
       skimanDir()
     }
     skiPos()
-    snowflakey()
     obstacleAdd()
     totemAdd()
+    incSnowDensity()
+    snowflakey()
     getScore()
     displayScore()
     lastSki[1] = skiY - 1.5 - 1.1 * dif}
@@ -162,7 +189,8 @@ function run() {
 
 function getHS(){
   if (score > hS){
-    hS = score
+    localStorage.clear()
+    localStorage.setItem("Highscore", score+2)
   }
 }
 
@@ -365,7 +393,7 @@ function displayScore() {
   fill('black')
   textFont(myFont)
   textSize(40)
-  text(score, windowWidth - 150, 50)
+  text(score, windowWidth - 70, 50)
 }
 
 function obstacleAdd() {
