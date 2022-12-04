@@ -1,5 +1,4 @@
 let bg;
-let lastSki
 let skiX
 let skiY
 let skier;
@@ -12,7 +11,8 @@ let speed = 0
 let w
 let h
 let obstacles = []
-let oCoolDown = 0
+let totems = []
+let objCoolDown = 0
 let alive = true
 let paused = false
 let score = 0
@@ -21,12 +21,19 @@ let safety = 10
 let dif = 1
 let d = 0
 let dAlready = false
+let lastSki = []
+let filterCoolDown = 0
+let hS = localStorage
+let playing = false
+
+
 
 function preload() {
   myFont = loadFont('assets/Pixel Coleco.otf');
   skiR = loadImage('assets/riSki.png')
   skiL = loadImage('assets/leSki.png')
   ski1 = loadImage('assets/skier.png')
+  tot = loadImage('assets/totem.png')
 }
 
 function setup() {
@@ -36,19 +43,20 @@ function setup() {
   tree = loadImage('assets/tree.png')
   rockPatch = loadImage('assets/rockPatch.png')
   bigRock.resize(189, 111)
-  log.resize(116,68)
+  log.resize(116, 68)
   tree.resize(141, 177)
   rockPatch.resize(159, 87)
   bg = loadImage('assets/Background.png');
-  // ski2 = loadImage('assets/ski2.png')
-  // skiR = loadImage('assets/riSki.png')
-  // skiL = loadImage('assets/leSki.png')
+  //localStorage.setItem('1000', 'Tom')
+  //console.log(localStorage)
+
+
 
   createCanvas(windowWidth, windowHeight);
   w = 44
   h = 102
-  skiX = (windowWidth / 2) - w / 2
-  skiY = (windowHeight / 2) - 63
+  skiX = (windowWidth / 2) - w
+  skiY = (windowHeight / 2) - 30
   //requestPointerLock()
   snowInt()
 
@@ -56,10 +64,14 @@ function setup() {
 }
 
 function draw() {
+  //menuScreen()
+}
+
+function playScreen(){
   ski1.resize(44, 102)
   skiR.resize(58, 92)
   skiL.resize(58, 92)
-  lastSki = [skiX, skiY]
+  tot.resize(52, 64)
   isFullScreen()
   isAlive()
   isPaused()
@@ -76,6 +88,19 @@ function draw() {
       deathScreen()
     }
   }
+}
+
+function menuScreen() {
+  cursor()
+  displayHS()
+  let playButton = createButton('Play')
+  playButton.position(100,0)
+  //playButton.mousePressed(playing = true)
+}
+
+function displayHS() {
+  textSize(50)
+  text("High Score:" + hS, windowWidth - 100, windowHeight - 100)
 }
 
 function pauseScreen() {
@@ -97,31 +122,157 @@ function deathScreen() {
 }
 
 function run() {
-  lastSki = [skiX, skiY]
-  scarf()
-  incSnowDensity()
-  getDif()
-  image(bg, 0, getBgY(), windowWidth, windowWidth * 4)
-  image(bg, 0, getBgY() + 4 * windowWidth, windowWidth, windowWidth * 4)
-  noCursor()
-  intTrails()
-  trailer()
-  if (dAlready == false) {
-    skimanDir()
+  if (keyPressed('r')) {
+    restartGame()
+    key = 'lmao'
   }
-  skiPos()
-  snowflakey()
-  obstacleAdd()
-  getScore()
-  displayScore()
+  else if(keyPressed("ESCAPE")){
+    restartGame()
+    playing = false
+  }
+  else{  
+    getHS()
+    incSnowDensity()
+    getDif()
+    image(bg, 0, getBgY(), windowWidth, windowWidth * 4)
+    image(bg, 0, getBgY() + 4 * windowWidth, windowWidth, windowWidth * 4)
+    noCursor()
+    intTrails()
+    trailer()
+    scarf()
+    if (dAlready == false) {
+      skimanDir()
+    }
+    skiPos()
+    snowflakey()
+    obstacleAdd()
+    totemAdd()
+    getScore()
+    displayScore()
+    lastSki[1] = skiY - 1.5 - 1.1 * dif}
+  // if(isTotem()){
+  //   filter(THRESHOLD)
+  //   filterCoolDown += 100
+  // }
+  // if(filterCoolDown == 0){
+
+  // }
+
+}
+
+function getHS(){
+  if (score > hS){
+    hS = score
+  }
+}
+
+function restartGame() {
+  bgY = 0
+  startOfSnow = true
+  score = 0
+  safety = 10
+  dif = 1
+  d = 0
+  dAlready = false
+  totems = []
+  lastSki = []
+  filterCoolDown = 0
+  speed = 0
+  obstacles = []
+  trails = []
+  snowflakes = []
+  alive = true
+  w = 44
+  h = 102
+  skiX = (windowWidth / 2) - w
+  skiY = (windowHeight / 2) - 30
+  //requestPointerLock()
+  snowInt()
+}
+
+function isTotem() {
+  for (totem of totems) {
+    rCorn = totem.x + totem.wid
+    lCorn = totem.x
+    if (d == 'l') {
+      if (lCorn < skiX + w - 10 && rCorn > skiX && round(skiY + h, -1) == round(totem.y + totem.h, -1)) {
+        return (true)
+      }
+    }
+    else if (d == 'r') {
+      if (lCorn < skiX + w && rCorn > skiX + 10 && round(skiY + h, -1) == round(totem.y + totem.h, -1)) {
+        return (true)
+      }
+    }
+    else if (d == 0) {
+      if (lCorn < skiX + w && rCorn > skiX && round(skiY + 152, -1) == round(obstacle.y + obstacle.h, -1)) {
+        return (true)
+      }
+    }
+  }
+}
+
+function totemAdd() {
+  if (objCoolDown > 0) {
+    objCoolDown--
+  }
+  if (doesOccur(.05) && objCoolDown <= 0) {
+    totems.push(new Totem(random(0, windowWidth - 52), windowHeight + 64, 52, 64, tot, dif))
+    if (dif < 4) {
+      objCoolDown += 400 - 100 * dif
+    }
+    else {
+      objCoolDown += 100
+    }
+  }
+  for (totem of totems) {
+    totem.display()
+    totem.move()
+    if (totem.y + totem.h < 0) {
+      totems.shift()
+    }
+    if (totem.y + totem.h < skiY + h && dAlready == false && skiY < totem.y + totem.h) {
+      dAlready = true
+      skimanDir()
+    }
+    else {
+      dAlready = false
+    }
+  }
 }
 
 function scarf() {
-  let scarfSlope = (skiY - lastSki[1]) / (skiX - lastSki[0])
-  let p1x = skiX + w / 2
-  let p1y = skiY - 10
-  let sLen = 10
-  //let p2x = p1x+(sLen-)
+  //let scarfSlope = (skiY - lastSki[1]) / (skiX - lastSki[0])
+  let scarfRise = skiY - lastSki[1]
+  let scarfRun = skiX - lastSki[0]
+  let p1x
+  let p3x
+  if (d == 'l') {
+    p1x = skiX + w / 2
+    p3x = p1x - 10
+  }
+  else if (d == 'r') {
+    p1x = skiX - 10 + w / 2
+    p3x = p1x - 10
+  }
+  else {
+    p1x = skiX - 5 + w / 2
+    p3x = p1x - 10
+  }
+  let p1y = skiY + 25
+  let p3y = skiY + 25
+  let sLen1 = 10
+  let sLen2 = 5
+  let p2x = p1x - (sLen1 * scarfRun)
+  let p4x = p3x - (sLen2 * scarfRun)
+  let p2y = p1y - (sLen1 * scarfRise)
+  let p4y = p3y - (sLen2 * scarfRise)
+  strokeWeight(4)
+  strokeCap(SQUARE)
+  stroke(200, 100, 160)
+  line(p1x, p1y, p2x, p2y)
+  line(p3x, p3y, p4x, p4y)
+  noStroke()
   //line(p1x, p1y, 
 
 }
@@ -154,7 +305,7 @@ function isAlive() {
       else if (lCorn - 10 < skiX + w - 10 && rCorn + 10 > skiX && skiY + h < obstacle.y + obstacle.h && skiY + h > obstacle.y && obstacle.pic == rockPatch) {
         alive = false
       }
-      else if (lCorn < skiX + w -10 && rCorn > skiX && skiY + h < obstacle.y + obstacle.h && skiY + h > obstacle.y && obstacle.pic == log) {
+      else if (lCorn < skiX + w - 10 && rCorn > skiX && skiY + h < obstacle.y + obstacle.h && skiY + h > obstacle.y && obstacle.pic == log) {
         alive = false
       }
     }
@@ -190,7 +341,7 @@ function isAlive() {
 }
 
 function getDif() {
-  dif += .0005
+  dif += .0003
 }
 
 function isPaused() {
@@ -218,43 +369,43 @@ function displayScore() {
 }
 
 function obstacleAdd() {
-  if (oCoolDown > 0) {
-    oCoolDown--
+  if (objCoolDown > 0) {
+    objCoolDown--
   }
-  if (doesOccur(.1) && oCoolDown <= 0) {
+  if (doesOccur(.1) && objCoolDown <= 0) {
     obstacles.push(new Obstacle(random(0, windowWidth - 189), windowHeight + 111, 189, 111, bigRock, dif))
     if (dif < 4) {
-      oCoolDown += 200 - 35 * dif
+      objCoolDown += 200 - 35 * dif
     }
     else {
-      oCoolDown += 60
+      objCoolDown += 60
     }
   }
-  else if (doesOccur(.5) && oCoolDown <= 0) {
+  else if (doesOccur(.5) && objCoolDown <= 0) {
     obstacles.push(new Obstacle(random(0, windowWidth - 141), windowHeight + 177, 141, 177, tree, dif))
     if (dif < 4) {
-      oCoolDown += 200 - 35 * dif
+      objCoolDown += 400 - 15 * dif
     }
     else {
-      oCoolDown += 60
+      objCoolDown += 350
     }
   }
-  else if (doesOccur(.5) && oCoolDown <= 0) {
+  else if (doesOccur(.5) && objCoolDown <= 0) {
     obstacles.push(new Obstacle(random(0, windowWidth - 116), windowHeight + 68, 116, 68, log, dif))
     if (dif < 4) {
-      oCoolDown += 200 - 35 * dif
+      objCoolDown += 200 - 35 * dif
     }
     else {
-      oCoolDown += 60
+      objCoolDown += 60
     }
   }
-  else if (doesOccur(.15) && oCoolDown <= 0) {
+  else if (doesOccur(.15) && objCoolDown <= 0) {
     obstacles.push(new Obstacle(random(0, windowWidth - 159), windowHeight + 87, 159, 87, rockPatch, dif))
     if (dif < 4) {
-      oCoolDown += 200 - 35 * dif
+      objCoolDown += 200 - 35 * dif
     }
     else {
-      oCoolDown += 60
+      objCoolDown += 60
     }
   }
   for (obstacle of obstacles) {
@@ -283,12 +434,16 @@ function doesOccur(freq) {
 }
 
 function skiPos() {
+  lastSki[0] = skiX
   skiX += speed
-  if (skiX < -w) {
-    skiX = windowWidth
+  if (skiX <= 0) {
+    speed = -speed
   }
-  if (skiX > windowWidth) {
-    skiX = -w
+  if (skiX >= windowWidth - w && d != 'r') {
+    speed = -speed
+  }
+  else if (skiX >= windowWidth - w + 30) {
+    speed = -speed
   }
 }
 
@@ -308,16 +463,17 @@ function skimanDir() {
     w = 58
     d = 'r'
     h = 92
+
     if (speed < 3 + dif) {
       speed += .04 * dif
     }
-    image(skiR, skiX - 19, skiY, w, h)
+    image(skiR, skiX - 10, skiY, w, h)
   }
   else {
     d = 0
     w = 44
     h = 102
-    image(ski1, skiX, skiY - 5, w, h)
+    image(ski1, skiX - 10, skiY - 5, w, h)
     if (speed > 0) {
       speed -= .04 * dif
     }
@@ -338,6 +494,8 @@ function keyPressed(k) {
     return false;
   }
 }
+
+
 
 function incSnowDensity() {
   if (round(random(0, 1000 / dif) == 1)) {
