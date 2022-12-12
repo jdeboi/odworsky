@@ -1,6 +1,6 @@
 class Trails {
     constructor(x, y, dif){
-        this.x = x
+        this.x = x +10
         this.y = y+70
         this.w = 8
         this.h = dif*2
