@@ -24,10 +24,10 @@ class Totem {
 
   getDif() {
     if (this.getDir() != 0) {
-      this.dif += .0003
+      this.dif += .0006
     }
     else {
-      this.dif += .0004
+      this.dif += .0008
     }
   }
 
