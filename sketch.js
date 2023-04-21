@@ -74,7 +74,7 @@ function draw() {
 function loadAll() {
   song = loadSound('assets/gameSong.wav')
   sloshy = loadSound('assets/sloshy.m4a')
-  medRock = loadImage('assets/medRock.png')
+  rock = loadImage('assets/medRock.png')
   bridge = loadImage('assets/bridg.png')
   log = loadImage('assets/new assets/log.png')
   bigRock = loadImage('assets/bRock.png')
@@ -254,8 +254,8 @@ function unTotemify() {
   isInv = false
   doInvert = true
   inv(log)
-  inv(medRock)
-  inv(smRock)
+//   inv(medRock)
+//   inv(smRock)
   inv(bigRock)
   inv(tree)
   inv(rockPatch)
@@ -271,8 +271,8 @@ function totemify() {
   isInv = true
   totems = []
   doInvert = true
-  inv(medRock)
-  inv(smRock)
+//   inv(medRock)
+//   inv(smRock)
   inv(log)
   inv(bigRock)
   inv(tree)
