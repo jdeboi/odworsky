@@ -74,7 +74,7 @@ function draw() {
 function loadAll() {
   song = loadSound('assets/gameSong.wav')
   sloshy = loadSound('assets/sloshy.m4a')
-  rock = loadImage('assets/medRock.png')
+  medRock = loadImage('assets/medRock.png')
   bridge = loadImage('assets/bridg.png')
   log = loadImage('assets/new assets/log.png')
   bigRock = loadImage('assets/bRock.png')
